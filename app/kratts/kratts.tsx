@@ -17,7 +17,7 @@ const temperature = 1.0;
 
 interface ChatGPTMessage {
   role: "system" | "user" | "assistant";
-  content: string; // The message content (text)
+  content: string;
 }
 
 interface ChatGPTChoice {
@@ -52,17 +52,10 @@ function Kratts() {
   interface ChatMessage {
     message: string;
     sender: sender;
-    sentTime?: string; // Optional, but keep structure consistent
-    direction?: "incoming" | "outgoing"; // Only for user messages
+    sentTime?: string;
+    direction?: "incoming" | "outgoing";
   }
 
-  // const [messages, setMessages] = useState([
-  //   {
-  //     message: "We're the Kratt bros! Ask us fun facts about animals, plants, and other species!",
-  //     sentTime: "just now",
-  //     sender: "ChatGPT",
-  //   },
-  // ]);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       message: "We're the Kratt bros! Ask us fun facts about animals, plants, and other species!",

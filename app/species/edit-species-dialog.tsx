@@ -73,64 +73,6 @@ export default function EditSpeciesDialog({ speciesData, onClose }: { speciesDat
     mode: "onChange",
   });
 
-  // const onSubmit = async (input: FormData) => {
-  //   console.log("comment", comment);
-  //   const supabase = createBrowserSupabaseClient();
-
-  //   console.log(input);
-  //   // specify which db we work for the .from() function.
-  //   // accessing the parts of the schema through dot notation
-  //   const { error } = await supabase
-  //     .from("species")
-  //     .update({
-  //       scientific_name: input.scientific_name,
-  //       common_name: input.common_name,
-  //       kingdom: input.kingdom,
-  //       total_population: input.total_population,
-  //       image: input.image,
-  //       description: input.description,
-  //       is_endangered: input.is_endangered,
-  //     })
-  //     .eq("id", speciesData.id);
-
-  //   const { commentError } = await supabase.from("comments").update({
-  //     comment: input.comment,
-  //     species_id: speciesData.id,
-  //   });
-
-  //   if (error || commentError) {
-  //     return toast({
-  //       title: "Something went wrong.",
-  //       description: error?.message || commentError?.message,
-  //       variant: "destructive",
-  //     });
-  //   }
-
-  //   if (input.comment && input.author) {
-  //     const { error: commentError } = await supabase.from("comments").insert({
-  //       author: input.author,
-  //       comment: input.comment,
-  //       species_id: speciesData.id, // Link comment to the species
-  //     });
-
-  //     form.reset(defaultValues);
-  //     onClose();
-  //     router.refresh();
-  //     return toast({
-  //       title: "Species updated!",
-  //       description: `Successfully updated ${input.scientific_name} and added comment.`,
-  //     });
-  //   }
-
-  //   form.reset(defaultValues);
-  //   onClose();
-  //   router.refresh();
-  //   return toast({
-  //     title: "Species updated!",
-  //     description: `Successfully updated ${input.scientific_name}.`,
-  //   });
-  // };
-
   const onSubmit = async (input: FormData) => {
     const supabase = createBrowserSupabaseClient();
 
@@ -398,7 +340,9 @@ export default function EditSpeciesDialog({ speciesData, onClose }: { speciesDat
                   type="button"
                   className="ml-1 mr-1 flex-auto"
                   variant="destructive"
-                  onClick={() => void handleDelete}
+                  onClick={() => {
+                    void handleDelete();
+                  }}
                   disabled={deleting}
                 >
                   {deleting ? "Deleting..." : "Delete Species"}
