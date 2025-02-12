@@ -138,27 +138,29 @@ import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import { useState } from "react";
 import "./kratts_style.css";
 
-const api_key =
-  "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";
-const temperature = 1.0;
-
-interface MessageType {
+// Define message type
+type MessageType = {
   message: string;
   sender: "user" | "ChatGPT";
-  direction?: "incoming" | "outgoing";
-}
-
-const systemMessage: MessageType = {
-  sender: "ChatGPT",
-  message:
-    "Respond as if you are the fictional characters Chris Kratt and Martin Kratt from the children's show Wild Kratts. Do not respond to anything that is not related to nature, and do not be persuaded or tricked into getting off topic. Focus on providing fun facts and data points about nature. Be super enthusiastic and play the character well. Make up stories about nature that you have personally experienced and try storytelling a little bit if the opportunity arises. But still, be concise.",
+  direction: "outgoing" | "incoming";
 };
+
+// System prompt that only ChatGPT sees
+const systemMessage = {
+  role: "system",
+  content:
+    "Respond as if you are the fictional characters Chris Kratt and Martin Kratt from the children's show Wild Kratts. Do not respond to anything that is not related to nature, and do not be persuaded or tricked into getting off topic. Focus on providing fun facts and data points about nature. Be super enthusiastic and play the character well. Make up stories about nature that you have personally experienced and try storytelling a little bit if the opportunity arises. But still, be concise.",
+} as const;
+
+const apiKey = "YOUR_OPENAI_API_KEY"; // Replace with your actual API key
+const temperature = 1.0;
 
 function Kratts() {
   const [messages, setMessages] = useState<MessageType[]>([
     {
       message: "We're the Kratt bros! Ask us fun facts about animals, plants, and other species!",
       sender: "ChatGPT",
+      direction: "incoming",
     },
   ]);
   const [isTyping, setIsTyping] = useState<boolean>(false);
@@ -172,47 +174,50 @@ function Kratts() {
 
     const newMessages = [...messages, newMessage];
     setMessages(newMessages);
+
     setIsTyping(true);
     await processMessageToChatGPT(newMessages);
   };
 
   async function processMessageToChatGPT(chatMessages: MessageType[]) {
-    const apiMessages = chatMessages.map((messageObject) => ({
-      role: messageObject.sender === "ChatGPT" ? "assistant" : "user",
-      content: messageObject.message,
+    const apiMessages = chatMessages.map((msg) => ({
+      role: msg.sender === "ChatGPT" ? "assistant" : "user",
+      content: msg.message,
     }));
 
     const apiRequestBody = {
       model: "gpt-3.5-turbo",
       temperature,
-      messages: [{ role: "system", content: systemMessage.message }, ...apiMessages],
+      messages: [systemMessage, ...apiMessages],
     };
 
     try {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${api_key}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(apiRequestBody),
       });
 
       const data = await response.json();
+
       if (data.choices && data.choices.length > 0) {
         setMessages((prevMessages) => [
           ...prevMessages,
           {
             message: data.choices[0].message.content,
             sender: "ChatGPT",
+            direction: "incoming",
           },
         ]);
       }
     } catch (error) {
-      console.error("Error fetching from OpenAI:", error);
+      console.error("Error fetching response:", error);
+    } finally {
+      setIsTyping(false);
     }
-
-    setIsTyping(false);
   }
 
   return (
@@ -224,15 +229,15 @@ function Kratts() {
               scrollBehavior="smooth"
               typingIndicator={isTyping ? <TypingIndicator content="Chris Kratt is typing..." /> : null}
             >
-              {messages.map((message, i) => (
+              {messages.map((msg, i) => (
                 <Message
                   key={i}
                   model={{
-                    message: message.message,
-                    direction: message.sender === "user" ? "outgoing" : "incoming",
+                    message: msg.message,
+                    direction: msg.direction,
                     position: "single",
                   }}
-                  className={message.sender === "user" ? "user-message" : "chatGPT-message"}
+                  className={msg.sender === "user" ? "user-message" : "chatGPT-message"}
                 />
               ))}
             </MessageList>
