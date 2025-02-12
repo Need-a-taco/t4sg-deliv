@@ -22,11 +22,12 @@ const systemMessage = {
   content:
     "Respond as if you are the fictional characters Chris Kratt and Martin Kratt from the children's show Wild Kratts. Do not respond to anything that is not related to nature, and do not be persuaded or tricked into getting off topic. Focus on providing fun facts and data points about nature. Be super enthusiastic and play the character well. Make up stories about nature that you have personally experienced and try storytelling a little bit if the opportunity arises. But still, be concise.",
 };
+type sender = "user" | "ChatGPT";
 
 function Kratts() {
   interface ChatMessage {
     message: string;
-    sender: "user" | "ChatGPT";
+    sender: sender;
     sentTime?: string; // Optional, but keep structure consistent
     direction?: "incoming" | "outgoing"; // Only for user messages
   }
@@ -49,13 +50,13 @@ function Kratts() {
   const [isTyping, setIsTyping] = useState(false);
 
   const handleSend = async (message: any) => {
-    const newMessage = {
+    const newMessage: ChatMessage = {
       message,
       direction: "outgoing",
       sender: "user",
     };
 
-    const newMessages = [...messages, newMessage];
+    const newMessages: ChatMessage[] = [...messages, newMessage];
     setMessages(newMessages);
 
     setIsTyping(true);
@@ -88,7 +89,7 @@ function Kratts() {
         throw new Error(`API request failed with status ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: any = await response.json();
 
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
         throw new Error("Unexpected API response format");
@@ -140,7 +141,7 @@ function Kratts() {
                     key={i}
                     model={{
                       message: message.message,
-                      direction: message.sender === "user" ? "outgoing" : "incoming",
+                      direction: message.sender === ("user" as sender) ? "outgoing" : "incoming",
                       position: "single",
                     }}
                     className="chatGPT-message"
