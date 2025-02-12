@@ -66,7 +66,9 @@ export default function SpeciesCard({ species, display_name }: { species: Specie
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
           <div className="z-60 relative mt-8 w-[90vw] max-w-md rounded bg-white p-6 shadow-lg">
             <div className="z-60 relative mb-4 h-40 w-full">
-              <Image src={species.image} alt={species.scientific_name} fill style={{ objectFit: "contain" }} />
+              {species.image && ( // Check if species.image exists and is not empty
+                <Image src={species.image} alt={species.scientific_name} fill style={{ objectFit: "contain" }} />
+              )}
             </div>
             <h3 style={{ color: "black" }} className="z-3 mb-4 text-xl font-semibold">
               Details: {species.common_name}

@@ -22,6 +22,7 @@ import { z } from "zod";
 const kingdoms = z.enum(["Animalia", "Plantae", "Fungi", "Protista", "Archaea", "Bacteria"]);
 
 const speciesSchema = z.object({
+  id: z.number().int(),
   scientific_name: z
     .string()
     .trim()
@@ -349,7 +350,7 @@ export default function EditSpeciesDialog({ speciesData, onClose }: { speciesDat
               />
               <FormField
                 control={form.control}
-                name="comment"
+                name="description"
                 render={({ field }) => {
                   return (
                     <FormItem>
