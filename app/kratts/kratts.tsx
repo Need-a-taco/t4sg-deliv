@@ -12,9 +12,7 @@ import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import { useState } from "react";
 import "./kratts_style.css";
 
-// const api_key = process.env.NEXT_PUBLIC_OPENAI_API_KEY!;
-const api_key =
-  "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";
+const api_key = process.env.NEXT_PUBLIC_OPENAI_API_KEY!;
 const temperature = 1.0;
 
 interface ChatGPTMessage {
