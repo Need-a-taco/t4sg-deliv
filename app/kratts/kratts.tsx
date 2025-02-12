@@ -12,9 +12,32 @@ import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import { useState } from "react";
 import "./kratts_style.css";
 
-const api_key =
-  "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";
+const api_key = process.env.OPENAI_API_KEY;
 const temperature = 1.0;
+
+interface ChatGPTMessage {
+  role: "system" | "user" | "assistant";
+  content: string; // The message content (text)
+}
+
+interface ChatGPTChoice {
+  index: number;
+  message: ChatGPTMessage;
+  finish_reason?: string;
+}
+
+interface ChatCompletionResponse {
+  choices?: ChatGPTChoice[];
+  error?: {
+    message: string;
+    type?: string;
+  };
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
 
 // System prompt that only ChatGPT sees
 const systemMessage = {
@@ -22,6 +45,7 @@ const systemMessage = {
   content:
     "Respond as if you are the fictional characters Chris Kratt and Martin Kratt from the children's show Wild Kratts. Do not respond to anything that is not related to nature, and do not be persuaded or tricked into getting off topic. Focus on providing fun facts and data points about nature. Be super enthusiastic and play the character well. Make up stories about nature that you have personally experienced and try storytelling a little bit if the opportunity arises. But still, be concise.",
 };
+
 type sender = "user" | "ChatGPT";
 
 function Kratts() {
@@ -47,9 +71,9 @@ function Kratts() {
     },
   ]);
 
-  const [isTyping, setIsTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState<boolean>(false);
 
-  const handleSend = async (message: any) => {
+  const handleSend = async (message: string) => {
     const newMessage: ChatMessage = {
       message,
       direction: "outgoing",
@@ -63,8 +87,8 @@ function Kratts() {
     await processMessageToChatGPT(newMessages);
   };
 
-  async function processMessageToChatGPT(chatMessages: any) {
-    let apiMessages = chatMessages.map((messageObject: any) => ({
+  async function processMessageToChatGPT(chatMessages: ChatMessage[]) {
+    const apiMessages = chatMessages.map((messageObject: ChatMessage) => ({
       role: messageObject.sender === "ChatGPT" ? "assistant" : "user",
       content: messageObject.message,
     }));
@@ -76,7 +100,7 @@ function Kratts() {
     };
 
     try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      const response: Response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${api_key}`,
@@ -84,21 +108,24 @@ function Kratts() {
         },
         body: JSON.stringify(apiRequestBody),
       });
+      console.log("response:", typeof response);
 
       if (!response.ok) {
         throw new Error(`API request failed with status ${response.status}`);
       }
+      if (!response) {
+        throw new Error(`API request failed with status`);
+      }
+      const data: ChatCompletionResponse = (await response.json()) as ChatCompletionResponse;
 
-      const data: any = await response.json();
-
-      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      if (!(data.choices && data.choices.length > 0)) {
         throw new Error("Unexpected API response format");
       }
 
       setMessages([
         ...chatMessages,
         {
-          message: data.choices[0].message.content,
+          message: data?.choices[0]?.message?.content ?? "",
           sender: "ChatGPT",
         },
       ]);
@@ -149,7 +176,7 @@ function Kratts() {
                 ),
               )}
             </MessageList>
-            <MessageInput placeholder="Ask the Wild Kratts!" onSend={handleSend} />
+            <MessageInput placeholder="Ask the Wild Kratts!" onSend={() => void handleSend} />
           </ChatContainer>
         </MainContainer>
       </div>

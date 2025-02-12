@@ -11,7 +11,6 @@ type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export default function UserCard({ user, sessionId }: { user: Profile; sessionId: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
 
   const handleEditClick = () => {
     router.push("/settings/profile");

@@ -22,8 +22,6 @@ export default async function SpeciesList() {
 
   const { data: species } = await supabase.from("species").select("*").order("id", { ascending: false });
   const { data: authors } = await supabase.from("profiles").select("id, display_name");
-  const { data: comments } = await supabase.from("comments").select("species_id, comment");
-
   return (
     <>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
@@ -41,7 +39,6 @@ export default async function SpeciesList() {
         ))}
       </div>
       <Separator className="my-4" />
-      <div className="flex flex-wrap justify-center">{comments?.map((c) => <p>{c.comment}</p>)}</div>
     </>
   );
 }

@@ -46,13 +46,7 @@ const speciesSchema = z.object({
   is_endangered: z.boolean().nullable(),
 });
 
-const commentSchema = z.object({
-  comment: z.string().transform((val) => (!val || val.trim() === "" ? null : val.trim())),
-  author: z.string().transform((val) => (!val || val.trim() === "" ? null : val.trim())),
-});
-
 type FormData = z.infer<typeof speciesSchema>;
-type CommentData = z.infer<typeof commentSchema>;
 
 const defaultValues: Partial<FormData> = {
   scientific_name: "",
@@ -62,11 +56,6 @@ const defaultValues: Partial<FormData> = {
   image: null,
   description: null,
   is_endangered: null,
-};
-
-const commentDefaultValues: Partial<CommentData> = {
-  author: "",
-  comment: "",
 };
 
 export default function EditSpeciesDialog({ speciesData, onClose }: { speciesData: FormData; onClose: () => void }) {
@@ -409,7 +398,7 @@ export default function EditSpeciesDialog({ speciesData, onClose }: { speciesDat
                   type="button"
                   className="ml-1 mr-1 flex-auto"
                   variant="destructive"
-                  onClick={handleDelete}
+                  onClick={() => void handleDelete}
                   disabled={deleting}
                 >
                   {deleting ? "Deleting..." : "Delete Species"}
